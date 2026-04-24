@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FairMind | Unbiased AI Decision Tool</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #000000;
+            --primary: #00FFFF;
+            --secondary: #39FF14;
+            --danger: #FF4500;
+            --text-light: #FFFFFF;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(0, 255, 255, 0.3);
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none; /* Custom cursor */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            font-family: var(--font-heading);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Custom Cursor */
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+            transition: width 0.2s, height 0.2s;
+        }
+        .cursor-trail {
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--primary);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: 0.1s ease-out;
+        }
+
+        /* Neural Network Canvas */
+        #neural-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            opacity: 0.6;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        section {
+            padding: 8rem 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Glitch Effect */
+        .glitch {
+            position: relative;
+            color: white;
+            font-size: 5rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+        
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+        }
+        
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 var(--primary);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+        
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 var(--danger);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(13px, 9999px, 83px, 0); }
+            5% { clip: rect(69px, 9999px, 14px, 0); }
+            10% { clip: rect(10px, 9999px, 78px, 0); }
+            15% { clip: rect(54px, 9999px, 20px, 0); }
+            20% { clip: rect(81px, 9999px, 97px, 0); }
+            25% { clip: rect(27px, 9999px, 34px, 0); }
+            30% { clip: rect(85px, 9999px, 19px, 0); }
+            35% { clip: rect(38px, 9999px, 45px, 0); }
+            40% { clip: rect(48px, 9999px, 17px, 0); }
+            45% { clip: rect(66px, 9999px, 81px, 0); }
+            50% { clip: rect(11px, 9999px, 50px, 0); }
+            55% { clip: rect(74px, 9999px, 82px, 0); }
+            60% { clip: rect(93px, 9999px, 24px, 0); }
+            65% { clip: rect(59px, 9999px, 63px, 0); }
+            70% { clip: rect(34px, 9999px, 7px, 0); }
+            75% { clip: rect(49px, 9999px, 90px, 0); }
+            80% { clip: rect(71px, 9999px, 12px, 0); }
+            85% { clip: rect(98px, 9999px, 55px, 0); }
+            90% { clip: rect(16px, 9999px, 42px, 0); }
+            95% { clip: rect(88px, 9999px, 95px, 0); }
+            100% { clip: rect(5px, 9999px, 60px, 0); }
+        }
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); }
+            5% { clip: rect(52px, 9999px, 74px, 0); }
+            10% { clip: rect(79px, 9999px, 85px, 0); }
+            15% { clip: rect(75px, 9999px, 5px, 0); }
+            20% { clip: rect(67px, 9999px, 61px, 0); }
+            25% { clip: rect(14px, 9999px, 79px, 0); }
+            30% { clip: rect(1px, 9999px, 20px, 0); }
+            35% { clip: rect(86px, 9999px, 30px, 0); }
+            40% { clip: rect(32px, 9999px, 88px, 0); }
+            45% { clip: rect(9px, 9999px, 43px, 0); }
+            50% { clip: rect(48px, 9999px, 16px, 0); }
+            55% { clip: rect(94px, 9999px, 28px, 0); }
+            60% { clip: rect(25px, 9999px, 98px, 0); }
+            65% { clip: rect(81px, 9999px, 51px, 0); }
+            70% { clip: rect(41px, 9999px, 38px, 0); }
+            75% { clip: rect(12px, 9999px, 66px, 0); }
+            80% { clip: rect(73px, 9999px, 92px, 0); }
+            85% { clip: rect(60px, 9999px, 7px, 0); }
+            90% { clip: rect(29px, 9999px, 53px, 0); }
+            95% { clip: rect(89px, 9999px, 15px, 0); }
+            100% { clip: rect(37px, 9999px, 49px, 0); }
+        }
+
+        .text-cyan { color: var(--primary); text-shadow: 0 0 15px rgba(0,255,255,0.5); }
+        .text-gradient {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Typewriter Effect */
+        .typewriter {
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            color: #aaa;
+            margin: 2rem 0;
+            min-height: 60px;
+            border-right: 2px solid var(--primary);
+            white-space: pre-wrap;
+            animation: blink 0.75s step-end infinite;
+        }
+        @keyframes blink { 50% { border-color: transparent; } }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+            background: rgba(0,255,255,0.05);
+            color: var(--primary);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: transparent;
+            color: var(--primary);
+            text-transform: uppercase;
+            text-decoration: none;
+            letter-spacing: 2px;
+            font-weight: bold;
+            border: 1px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+            margin-top: 1rem;
+            cursor: none;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,255,255,0.4), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover {
+            background: rgba(0,255,255,0.1);
+            box-shadow: 0 0 20px rgba(0,255,255,0.4);
+        }
+        
+        .btn:hover::before { left: 100%; }
+
+        /* Hero Counters */
+        .hero-counters {
+            display: flex;
+            gap: 3rem;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 2rem;
+            flex-wrap: wrap;
+        }
+        .counter-box {
+            display: flex;
+            flex-direction: column;
+        }
+        .counter-val {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0,255,255,0.3);
+        }
+        .counter-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--primary);
+            font-size: 2rem;
+            animation: pulse 2s infinite;
+            text-align: center;
+        }
+        @keyframes pulse {
+            0% { transform: translate(-50%, 0); opacity: 1; }
+            50% { transform: translate(-50%, 15px); opacity: 0.5; }
+            100% { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        /* Section 2: Crisis */
+        .binary-rain {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            overflow: hidden;
+            pointer-events: none;
+            color: var(--danger);
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            word-wrap: break-word;
+        }
+
+        .horizontal-scroll {
+            display: flex;
+            gap: 2rem;
+            overflow-x: auto;
+            padding: 2rem 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--danger) transparent;
+        }
+
+        .story-card {
+            min-width: 350px;
+            background: var(--card-bg);
+            border: 1px solid rgba(255,69,0,0.3);
+            padding: 2.5rem;
+            border-radius: 8px;
+            position: relative;
+            transition: all 0.3s;
+            box-shadow: inset 0 0 20px rgba(255,69,0,0.05);
+        }
+
+        .story-card:hover {
+            border-color: var(--danger);
+            box-shadow: 0 0 30px rgba(255,69,0,0.2), inset 0 0 20px rgba(255,69,0,0.1);
+            transform: translateY(-10px);
+        }
+
+        .story-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .story-stat { 
+            font-size: 3.5rem; 
+            color: var(--danger); 
+            font-weight: 700; 
+            line-height: 1;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 15px rgba(255,69,0,0.5);
+        }
+        .story-tag {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: var(--danger);
+            color: black;
+            font-family: var(--font-mono);
+            font-weight: bold;
+            padding: 2px 10px;
+            font-size: 0.8rem;
+        }
+
+        /* Split Section */
+        .split-screen {
+            display: flex;
+            gap: 4rem;
+            align-items: center;
+        }
+        .split-left { flex: 1; }
+        .split-right { flex: 1; }
+
+        .step-item {
+            margin-bottom: 2rem;
+        }
+        .step-num {
+            font-family: var(--font-mono);
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .step-text {
+            font-size: 1.2rem;
+            color: #ddd;
+        }
+
+        /* Fake Terminal */
+        .terminal {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: var(--font-mono);
+            color: var(--secondary);
+            min-height: 350px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            position: relative;
+        }
+        .terminal-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        .t-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .t-dot.r { background: #ff5f56; }
+        .t-dot.y { background: #ffbd2e; }
+        .t-dot.g { background: #27c93f; }
+
+        /* Transformation Section */
+        .transform-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4rem;
+            gap: 2rem;
+        }
+
+        .bias-circle {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .bias-circle.orange {
+            border: 2px solid var(--danger);
+            box-shadow: 0 0 40px rgba(255,69,0,0.3), inset 0 0 40px rgba(255,69,0,0.2);
+        }
+
+        .bias-circle.green {
+            border: 2px solid var(--secondary);
+            box-shadow: 0 0 40px rgba(57,255,20,0.3), inset 0 0 40px rgba(57,255,20,0.2);
+        }
+
+        .b-score { font-size: 4rem; font-weight: 700; line-height: 1; }
+        .orange .b-score { color: var(--danger); text-shadow: 0 0 20px var(--danger); }
+        .green .b-score { color: var(--secondary); text-shadow: 0 0 20px var(--secondary); }
+
+        .b-label { font-family: var(--font-mono); margin-top: 1rem; letter-spacing: 2px; text-align: center;}
+
+        .tag-cloud {
+            position: absolute;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            opacity: 0.6;
+            white-space: nowrap;
+        }
+
+        .middle-arrow {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+        
+        .arrow-line {
+            height: 2px;
+            background: linear-gradient(90deg, var(--danger), var(--primary), var(--secondary));
+            width: 100%;
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .arrow-line::after {
+            content: '►';
+            position: absolute;
+            right: -10px;
+            top: -12px;
+            color: var(--secondary);
+            font-size: 1.5rem;
+        }
+
+        .arrow-dots {
+            position: absolute;
+            top: -4px;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px white;
+            animation: flowRight 2s infinite linear;
+        }
+
+        @keyframes flowRight {
+            0% { left: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+        }
+        
+        @keyframes fireworks {
+            0% { transform: scale(1); text-shadow: 0 0 20px var(--secondary); }
+            50% { transform: scale(1.1); text-shadow: 0 0 50px var(--secondary), 0 0 80px var(--primary); }
+            100% { transform: scale(1); text-shadow: 0 0 20px var(--secondary); }
+        }
+        
+        .fireworks-text {
+            animation: fireworks 2s ease-in-out infinite;
+        }
+
+        /* 3D Cards */
+        .perspective-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            perspective: 1000px;
+            margin-top: 4rem;
+        }
+
+        .card-3d {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            transform-style: preserve-3d;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .card-3d:hover {
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0,255,255,0.15), inset 0 0 20px rgba(0,255,255,0.05);
+        }
+
+        .card-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            transform: translateZ(30px);
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            transform: translateZ(20px);
+        }
+
+        .card-desc {
+            color: #aaa;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            flex-grow: 1;
+            transform: translateZ(10px);
+        }
+
+        .sdg-tags {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 2rem;
+            transform: translateZ(15px);
+        }
+        
+        .s-tag {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+
+        .card-btn {
+            background: transparent;
+            border: 1px solid var(--text-light);
+            color: var(--text-light);
+            padding: 10px 20px;
+            cursor: none;
+            transition: 0.3s;
+            transform: translateZ(25px);
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .card-3d:hover .card-btn {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* SDG Wall */
+        .sdg-wall {
+            background: radial-gradient(circle at center, rgba(0,255,255,0.05) 0%, transparent 70%);
+        }
+
+        .sdg-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .sdg-item {
+            padding: 2rem;
+            text-align: center;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .sdg-item::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: currentColor;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .sdg-item:hover { transform: translateY(-5px); }
+        .sdg-item h3 { position: relative; z-index: 1; font-size: 1.2rem; margin-top: 1rem; color: white; }
+        .sdg-item i { position: relative; z-index: 1; font-size: 3rem; }
+
+        .timeline {
+            margin-top: 3rem;
+            position: relative;
+            text-align: center;
+            font-family: var(--font-mono);
+        }
+        
+        .timeline-bar {
+            height: 2px;
+            background: #333;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .timeline-progress {
+            position: absolute;
+            left: 0; top: 0; height: 100%;
+            width: 73%; /* (2026-2015)/(2030-2015) roughly */
+            background: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            top: -10px;
+            left: 73%;
+            background: var(--danger);
+            color: black;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            transform: translateX(-50%);
+        }
+
+        /* Team */
+        .team-grid {
+            display: flex;
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+        
+        @media (max-width: 768px) {
+            .team-grid { flex-direction: column; }
+        }
+
+        .team-member {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 3rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .avatar-shape {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            background: rgba(0,255,255,0.1);
+        }
+        
+        .shape-cyan {
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 30px rgba(0,255,255,0.3);
+        }
+        
+        .shape-purple {
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+            border: 2px solid #b026ff;
+            box-shadow: 0 0 30px rgba(176,38,255,0.3);
+            background: rgba(176,38,255,0.1);
+        }
+
+        .quote {
+            font-style: italic;
+            color: #ccc;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px dashed rgba(255,255,255,0.2);
+        }
+
+        /* Final CTA */
+        .epic-cta {
+            text-align: center;
+            background: radial-gradient(circle at center, rgba(0,255,255,0.1) 0%, transparent 60%);
+        }
+
+        .epic-title { font-size: 5rem; line-height: 1.1; margin-bottom: 3rem; }
+
+        .cta-group {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-mega {
+            font-size: 1.5rem;
+            padding: 1.5rem 3rem;
+        }
+
+        .btn-mega-sec {
+            border-color: #fff;
+            color: #fff;
+        }
+        .btn-mega-sec:hover {
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 4rem 0;
+            text-align: center;
+            font-family: var(--font-mono);
+            color: #888;
+        }
+        
+        .footer-line { margin-bottom: 1rem; }
+
+        /* Animation Classes */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: 1s all ease;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 1024px) {
+            .glitch { font-size: 3.5rem; }
+            .split-screen { flex-direction: column; }
+            .transform-container { flex-direction: column; gap: 4rem; }
+            .middle-arrow { transform: rotate(90deg); margin: 2rem 0; }
+            .bias-circle { width: 250px; height: 250px; }
+            .epic-title { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-trail" id="cursor-trail"></div>
+
+    <!-- Background Canvas -->
+    <canvas id="neural-canvas"></canvas>
+
+    <!-- SECTION 1: HERO -->
+    <section id="hero" style="position: relative;">
+        <div style="position: absolute; top: 2rem; left: 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: #888;">
+            Google Solution Challenge 2026 — Team Solvation
+        </div>
+        
+        <div class="container reveal">
+            <h1 class="glitch" data-text="AI Doesn't Lie.">AI Doesn't Lie.</h1>
+            <h1 class="glitch text-cyan" data-text="But Its Data Does.">But Its Data Does.</h1>
+            
+            <div class="typewriter" id="typewriter"></div>
+            
+            <div>
+                <div class="badge">⚡ Powered by Google Gemini AI</div>
+                <div class="badge">🔬 IBM AIF360 Engine</div>
+            </div>
+            
+            <a href="https://unbiased-ai-tool.onrender.com" target="_blank" class="btn" style="font-size: 1.2rem;">
+                DETECT BIAS NOW →
+            </a>
+            
+            <div class="hero-counters">
+                <div class="counter-box">
+                    <div class="counter-val" data-target="76">0</div>
+                    <div class="counter-label">% Bias Reduced</div>
+                </div>
+                <div class="counter-box">
+                    <div class="counter-val" data-target="3">0</div>
+                    <div class="counter-label">Sectors Protected</div>
+                </div>
+                <div class="counter-box">
+                    <div class="counter-val" data-target="4">0</div>
+                    <div class="counter-label">SDGs Supported</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="scroll-indicator">↓</div>
+    </section>
+
+    <!-- SECTION 2: THE CRISIS -->
+    <section id="crisis" style="position: relative;">
+        <div class="binary-rain" id="binary-rain"></div>
+        <div class="container reveal">
+            <h2 class="glitch" data-text="The Invisible Discrimination" style="font-size: 3rem; margin-bottom: 2rem;">The Invisible Discrimination</h2>
+            
+            <div class="horizontal-scroll">
+                <div class="story-card">
+                    <div class="story-tag">REAL CASE 2018</div>
+                    <div class="story-icon">👩‍💼</div>
+                    <div class="story-stat">40%</div>
+                    <p style="font-family: var(--font-mono);">Riya had 8 years experience. Amazon's AI rejected her resume before any human saw it. Reason: She was female.</p>
+                </div>
+                
+                <div class="story-card">
+                    <div class="story-tag">LOAN BIAS</div>
+                    <div class="story-icon">🏘️</div>
+                    <div class="story-stat">80%</div>
+                    <p style="font-family: var(--font-mono);">Ramesh from rural Bihar. Same income as his urban counterpart. AI denied his loan because of his ZIP code.</p>
+                </div>
+                
+                <div class="story-card">
+                    <div class="story-tag">HEALTHCARE BIAS</div>
+                    <div class="story-icon">🏥</div>
+                    <div class="story-stat">2X</div>
+                    <p style="font-family: var(--font-mono);">Elderly patients in rural India receive half the specialist referrals. Not because of health. Because of data.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: HOW IT WORKS -->
+    <section id="how">
+        <div class="container reveal">
+            <div class="split-screen">
+                <div class="split-left">
+                    <h2 class="text-gradient" style="font-size: 3rem; margin-bottom: 3rem;">How It Works</h2>
+                    
+                    <div class="step-item">
+                        <div class="step-num">01 →</div>
+                        <div class="step-text">Upload your dataset (CSV) securely.</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">02 →</div>
+                        <div class="step-text">AI scans with IBM AIF360 + Gemini analyzes nuance.</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">03 →</div>
+                        <div class="step-text">Get actionable bias report + Hindi explanation + PDF.</div>
+                    </div>
+                </div>
+                
+                <div class="split-right">
+                    <div class="terminal" id="terminal">
+                        <div class="terminal-header">
+                            <div class="t-dot r"></div>
+                            <div class="t-dot y"></div>
+                            <div class="t-dot g"></div>
+                        </div>
+                        <div id="term-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: LIVE PROOF -->
+    <section id="proof">
+        <div class="container reveal">
+            <h2 class="text-gradient" style="font-size: 4rem; text-align: center;">Watch Bias Die in Real Time</h2>
+            
+            <div class="transform-container">
+                <!-- BEFORE -->
+                <div class="bias-circle orange">
+                    <div class="tag-cloud" style="top: 20%; left: -20%;">gender bias</div>
+                    <div class="tag-cloud" style="bottom: 10%; right: -10%;">caste bias</div>
+                    <div class="tag-cloud" style="top: 10%; right: 10%;">location bias</div>
+                    
+                    <div class="b-score">0.568</div>
+                    <div class="b-label" style="color: var(--danger)">HIGH BIAS DETECTED</div>
+                </div>
+
+                <!-- MIDDLE -->
+                <div class="middle-arrow">
+                    <div style="font-family: var(--font-mono); letter-spacing: 3px; color: var(--primary);">REWEIGHING</div>
+                    <div class="arrow-line">
+                        <div class="arrow-dots"></div>
+                    </div>
+                </div>
+
+                <!-- AFTER -->
+                <div class="bias-circle green" id="after-circle">
+                    <div class="tag-cloud" style="top: -10%; right: 20%;">eliminated</div>
+                    <div class="tag-cloud" style="bottom: 20%; left: -10%;">neutralized</div>
+                    <div class="tag-cloud" style="top: 40%; right: -20%;">fixed</div>
+                    
+                    <div class="b-score">1.000</div>
+                    <div class="b-label" style="color: var(--secondary)">PERFECTLY FAIR</div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 4rem;">
+                <h3 class="fireworks-text" style="font-size: 3rem; color: var(--secondary); margin-bottom: 2rem;">+76% IMPROVEMENT</h3>
+                <a href="https://unbiased-ai-tool.onrender.com" target="_blank" class="btn">Try On Your Data →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: 3 SECTORS (3D perspective) -->
+    <section id="sectors">
+        <div class="container reveal">
+            <h2 style="font-size: 3rem; margin-bottom: 1rem;">Critical Sectors</h2>
+            <p style="color: #aaa; font-family: var(--font-mono);">Where AI bias hurts the most.</p>
+            
+            <div class="perspective-grid">
+                <!-- Card 1 -->
+                <div class="card-3d">
+                    <div class="card-icon">💼</div>
+                    <h3 class="card-title">JOB HIRING</h3>
+                    <p class="card-desc">Gender · Caste · Location bias</p>
+                    <div class="sdg-tags">
+                        <span class="s-tag" style="color: #00FFFF; border: 1px solid #00FFFF;">SDG 8</span>
+                        <span class="s-tag" style="color: #00FFFF; border: 1px solid #00FFFF;">SDG 5</span>
+                    </div>
+                    <a href="https://unbiased-ai-tool.onrender.com" target="_blank" class="card-btn">Analyze Now</a>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card-3d">
+                    <div class="card-icon">🏦</div>
+                    <h3 class="card-title">LOAN APPROVAL</h3>
+                    <p class="card-desc">Income · Region · Religion bias</p>
+                    <div class="sdg-tags">
+                        <span class="s-tag" style="color: #00FFFF; border: 1px solid #00FFFF;">SDG 10</span>
+                        <span class="s-tag" style="color: #00FFFF; border: 1px solid #00FFFF;">SDG 16</span>
+                    </div>
+                    <a href="https://unbiased-ai-tool.onrender.com" target="_blank" class="card-btn">Analyze Now</a>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card-3d">
+                    <div class="card-icon">🏥</div>
+                    <h3 class="card-title">HEALTHCARE</h3>
+                    <p class="card-desc">Age · Area · Gender bias</p>
+                    <div class="sdg-tags">
+                        <span class="s-tag" style="color: #00FFFF; border: 1px solid #00FFFF;">SDG 3</span>
+                        <span class="s-tag" style="color: #00FFFF; border: 1px solid #00FFFF;">SDG 10</span>
+                    </div>
+                    <a href="https://unbiased-ai-tool.onrender.com" target="_blank" class="card-btn">Analyze Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: SDG WALL -->
+    <section class="sdg-wall">
+        <div class="container reveal">
+            <h2 style="font-size: 3.5rem; text-align: center;">Racing Against 2030</h2>
+            <p style="text-align: center; color: #aaa; font-family: var(--font-mono); font-size: 1.2rem;">4 years remain. AI bias is accelerating inequality.</p>
+            
+            <div class="sdg-grid">
+                <div class="sdg-item" style="color: #9b51e0;">
+                    <i>🟣</i>
+                    <h3>SDG 5<br>Gender Equality</h3>
+                </div>
+                <div class="sdg-item" style="color: #2d9cdb;">
+                    <i>🔵</i>
+                    <h3>SDG 8<br>Decent Work</h3>
+                </div>
+                <div class="sdg-item" style="color: #27ae60;">
+                    <i>🟢</i>
+                    <h3>SDG 10<br>Reduced Inequalities</h3>
+                </div>
+                <div class="sdg-item" style="color: #eb5757;">
+                    <i>🔴</i>
+                    <h3>SDG 16<br>Peace & Justice</h3>
+                </div>
+            </div>
+
+            <div class="timeline">
+                <span>2015</span>
+                <div class="timeline-bar">
+                    <div class="timeline-progress"></div>
+                    <div class="timeline-marker">NOW 2026</div>
+                </div>
+                <span>2030</span>
+                <div style="margin-top: 1rem;">We are here. The clock is ticking.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 7: TEAM -->
+    <section id="team">
+        <div class="container reveal">
+            <h2 class="text-gradient" style="font-size: 3rem; text-align: center;">Two Students. One Mission.</h2>
+            
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="avatar-shape shape-cyan"></div>
+                    <h3 style="font-size: 2rem;">Anjani</h3>
+                    <div style="color: var(--primary); font-family: var(--font-mono); margin: 0.5rem 0;">AI Backend Engineer</div>
+                    <div style="color: #888;">ECE 2nd Year, Pune</div>
+                    <div class="quote">"I trained the AI to detect what humans ignore."</div>
+                </div>
+
+                <div class="team-member">
+                    <div class="avatar-shape shape-purple"></div>
+                    <h3 style="font-size: 2rem;">Anshu Raj Verma</h3>
+                    <div style="color: #b026ff; font-family: var(--font-mono); margin: 0.5rem 0;">Frontend & Cloud Engineer</div>
+                    <div style="color: #888;">ECE 1st Year, Pune</div>
+                    <div class="quote">"I built the interface so anyone can use what she built."</div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 3rem; font-family: var(--font-mono); color: #aaa;">
+                Built in 48 hours. Deployed globally. Powered by Google.
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 8: FINAL CTA -->
+    <section class="epic-cta reveal" style="min-height: 80vh;">
+        <div class="container">
+            <h2 class="epic-title">Your Data Has a Bias Problem.<br><span class="text-cyan">We Have the Solution.</span></h2>
+            
+            <div class="cta-group">
+                <a href="https://unbiased-ai-tool.onrender.com" target="_blank" class="btn btn-mega">🚀 LAUNCH THE TOOL</a>
+                <a href="https://github.com/anshurajv2716/unbiased-ai-tool" target="_blank" class="btn btn-mega btn-mega-sec">📂 VIEW SOURCE CODE</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-line text-cyan">⚖️ Unbiased AI Decision Tool</div>
+            <div class="footer-line">Team Solvation | Google Solution Challenge 2026</div>
+            <div class="footer-line">SDG 5 · SDG 8 · SDG 10 · SDG 16</div>
+            <div class="footer-line" style="font-style: italic; color: white;">"AI khud biased nahi hota — wo data ka bias reflect karta hai"</div>
+            <div class="footer-line" style="margin-top: 2rem; font-size: 0.8rem;">Powered by Google Gemini AI + IBM AIF360</div>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script>
+        // Custom Cursor
+        const cursorDot = document.getElementById('cursor-dot');
+        const cursorTrail = document.getElementById('cursor-trail');
+        
+        window.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+            
+            // Slight delay for trail
+            setTimeout(() => {
+                cursorTrail.style.left = e.clientX + 'px';
+                cursorTrail.style.top = e.clientY + 'px';
+            }, 50);
+        });
+
+        // Hover effects for cursor
+        document.querySelectorAll('a, .btn, .card-3d, .story-card').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorDot.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                cursorTrail.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                cursorTrail.style.borderColor = 'var(--danger)';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorDot.style.transform = 'translate(-50%, -50%) scale(1)';
+                cursorTrail.style.transform = 'translate(-50%, -50%) scale(1)';
+                cursorTrail.style.borderColor = 'var(--primary)';
+            });
+        });
+
+        // Neural Network Canvas Background
+        const canvas = document.getElementById('neural-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        let nodes = [];
+        const numNodes = Math.floor((canvas.width * canvas.height) / 15000);
+        const connectionDistance = 150;
+        
+        for(let i = 0; i < numNodes; i++) {
+            nodes.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 1,
+                vy: (Math.random() - 0.5) * 1,
+                radius: Math.random() * 2 + 1,
+                bias: Math.random() > 0.5 // true = biased (orange), false = fair (cyan)
+            });
+        }
+        
+        function animateCanvas() {
+            requestAnimationFrame(animateCanvas);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Update positions
+            nodes.forEach(node => {
+                node.x += node.vx;
+                node.y += node.vy;
+                
+                if(node.x < 0 || node.x > canvas.width) node.vx *= -1;
+                if(node.y < 0 || node.y > canvas.height) node.vy *= -1;
+                
+                // Randomly fix bias over time
+                if(node.bias && Math.random() < 0.001) node.bias = false;
+            });
+            
+            // Draw connections
+            for(let i = 0; i < nodes.length; i++) {
+                for(let j = i + 1; j < nodes.length; j++) {
+                    const dx = nodes[i].x - nodes[j].x;
+                    const dy = nodes[i].y - nodes[j].y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if(dist < connectionDistance) {
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i].x, nodes[i].y);
+                        ctx.lineTo(nodes[j].x, nodes[j].y);
+                        
+                        const opacity = 1 - (dist / connectionDistance);
+                        
+                        // Color line based on nodes
+                        if(nodes[i].bias || nodes[j].bias) {
+                            ctx.strokeStyle = `rgba(255, 69, 0, ${opacity * 0.3})`; // Danger orange
+                        } else {
+                            ctx.strokeStyle = `rgba(0, 255, 255, ${opacity * 0.3})`; // Cyan
+                        }
+                        
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            // Draw nodes
+            nodes.forEach(node => {
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                ctx.fillStyle = node.bias ? '#FF4500' : '#00FFFF';
+                ctx.fill();
+            });
+        }
+        
+        animateCanvas();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Typewriter Effect
+        const text = "Every day, 2 crore Indians lose opportunities to biased AI.\nWe built the antidote.";
+        const typeEl = document.getElementById('typewriter');
+        let typeI = 0;
+        
+        function typeWriter() {
+            if (typeI < text.length) {
+                typeEl.innerHTML += text.charAt(typeI);
+                typeI++;
+                setTimeout(typeWriter, 50);
+            }
+        }
+        setTimeout(typeWriter, 1000);
+
+        // Binary Rain Effect
+        const rainContainer = document.getElementById('binary-rain');
+        let rainContent = '';
+        for(let r=0; r<2000; r++) {
+            rainContent += Math.random() > 0.5 ? '1 ' : '0 ';
+        }
+        rainContainer.innerHTML = rainContent;
+        
+        // Scroll Animations with Intersection Observer
+        const reveals = document.querySelectorAll('.reveal');
+        let terminalAnimated = false;
+        
+        const revealOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        };
+        
+        const revealObserver = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(entry => {
+                if(!entry.isIntersecting) return;
+                
+                entry.target.classList.add('active');
+                
+                // Trigger counters
+                if(entry.target.querySelector('.hero-counters')) {
+                    const counters = entry.target.querySelectorAll('.counter-val');
+                    counters.forEach(counter => {
+                        const target = +counter.getAttribute('data-target');
+                        let count = 0;
+                        const inc = target / 50;
+                        const updateCount = () => {
+                            count += inc;
+                            if(count < target) {
+                                counter.innerText = Math.ceil(count);
+                                requestAnimationFrame(updateCount);
+                            } else {
+                                counter.innerText = target;
+                            }
+                        };
+                        updateCount();
+                    });
+                }
+
+                // Trigger Terminal Animation
+                if(entry.target.querySelector('.terminal') && !terminalAnimated) {
+                    terminalAnimated = true;
+                    animateTerminal();
+                }
+                
+                observer.unobserve(entry.target);
+            });
+        }, revealOptions);
+        
+        reveals.forEach(reveal => {
+            revealObserver.observe(reveal);
+        });
+
+        // Terminal Animation
+        const termLines = [
+            "> Loading dataset... ████████ 100%",
+            "> Scanning for bias patterns...",
+            "<span style='color: var(--danger)'>> Gender bias detected: 0.568 ⚠️</span>",
+            "> Running Reweighing algorithm...",
+            "> ████████████████ Complete",
+            "<span style='color: var(--secondary)'>> Disparate Impact: 1.000 ✓</span>",
+            "> Bias reduced: 76.0%",
+            "> Generating report...",
+            "> Done. ✓"
+        ];
+        
+        function animateTerminal() {
+            const termContent = document.getElementById('term-content');
+            let lineIdx = 0;
+            
+            function showLine() {
+                if(lineIdx < termLines.length) {
+                    const p = document.createElement('div');
+                    p.innerHTML = termLines[lineIdx];
+                    p.style.marginBottom = '8px';
+                    termContent.appendChild(p);
+                    lineIdx++;
+                    setTimeout(showLine, Math.random() * 500 + 300);
+                }
+            }
+            showLine();
+        }
+
+        // 3D Card Hover Effect
+        const cards = document.querySelectorAll('.card-3d');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -10;
+                const rotateY = ((x - centerX) / centerX) * 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+            });
+        });
+
+    </script>
+</body>
+</html>
